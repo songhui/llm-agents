@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "llmagents"
+version = "0.1.0"
+description = "some examples using autogen"
+authors = ["Hui Song"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.13"
+pyautogen = "^0.2.31"
+
+
+[tool.poetry.group.dev.dependencies]
+jupyter = "^1.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

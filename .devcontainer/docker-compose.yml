@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  devcontainer:
+    image: quay.io/jupyter/datascience-notebook:2024-05-27
+    volumes:
+      - ../..:/workspaces:cached
+    network_mode: service:neo4j
+    command: sleep infinity
+  neo4j:
+    container_name: neo4j
+    image: neo4j:latest
+    ports:
+      - 7474:7474
+      - 7687:7687
+    environment:
+      - NEO4J_AUTH=neo4j/llm-agents
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+      - NEO4J_PLUGINS=["apoc", "graph-data-science"]
+    volumes:
+      - ../docker/neo4j/data:/data
+      - ../docker/neo4j/logs:/logs
+      - ../docker/neo4j/import:/var/lib/neo4j/import
+      - ../docker/neo4j/plugins:/plugins

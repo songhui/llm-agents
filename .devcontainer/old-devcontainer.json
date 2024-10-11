@@ -1,7 +1,5 @@
 {
-    "dockerComposeFile": "docker-compose.yml",
-    "service": "devcontainer",
-    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}"
+    "image": "quay.io/jupyter/datascience-notebook:2024-05-27",
     "forwardPorts": [8888],
     "customizations": {
         "extensions": ["ms-python.python", "ms-toolsai.jupyter"],

@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   devcontainer:
     image: quay.io/jupyter/datascience-notebook:2024-05-27

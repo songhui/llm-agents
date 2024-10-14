@@ -5,10 +5,13 @@ description = "some examples using autogen"
 authors = ["Hui Song"]
 license = "MIT"
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.13"
 pyautogen = "^0.2.31"
+biopython = "^1.84"
+neo4j = "^5.25.0"
 
 
 [tool.poetry.group.dev.dependencies]

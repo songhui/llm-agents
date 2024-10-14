@@ -1,12 +1,15 @@
-{
-    "dockerComposeFile": "docker-compose.yml",
+{   "dockerComposeFile": "docker-compose.yml" ,
     "service": "devcontainer",
-    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}"
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
     "forwardPorts": [8888],
-    "customizations": {
-        "extensions": ["ms-python.python", "ms-toolsai.jupyter"],
-        "settings": {
-            "python.defaultInterpreterPath": "/opt/conda/bin/python"
-        }
+    "postCreateCommand": "bash -i -c 'pip install poetry && poetry install' ",
+    "customizations": 
+    { 
+        // To install extensions in vscode without doing it manually every time
+        "vscode": 
+        {
+            "extensions": ["ms-python.python", "ms-toolsai.jupyter"],
+            "settings": {"python.defaultInterpreterPath": "/opt/conda/bin/python"}
+        }  
     }
 }

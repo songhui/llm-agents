@@ -1,0 +1,7 @@
+[    
+    {
+        "model": "$MODEL_NAME",
+        "api_key": "$API_KEY",
+        "base_url": "$URL_IF_NEEDED"
+    }
+]

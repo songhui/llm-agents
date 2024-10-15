@@ -2,6 +2,7 @@
     "service": "devcontainer",
     "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
     "forwardPorts": [8888],
+    // Install needed packages, should be changed in future
     "postCreateCommand": "bash -i -c 'pip install poetry && poetry install' ",
     "customizations": 
     { 

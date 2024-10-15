@@ -5,7 +5,6 @@ description = "some examples using autogen"
 authors = ["Hui Song"]
 license = "MIT"
 readme = "README.md"
-package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.13"

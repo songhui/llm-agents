@@ -13,6 +13,7 @@ def get_citations(doi:str) -> str:
         print(f"Error: {response.status_code}")
         return ""
     
+#TODO: the mail should be a venv variable
 def get_title_abstract(pmid: str) -> str:
 
     Entrez.email = 'hui.song@sintef.no' 
@@ -35,6 +36,7 @@ def get_title_abstract(pmid: str) -> str:
         abstract = str(abstract_paragraphs)
     
     return "Title: {} \nAbstract: {}".format(title, abstract)
+
 
 def get_pmid_from_doi(doi: str)->str:
 
@@ -136,7 +138,9 @@ def get_citations_pubmed(pmid:str)->str:
         title = article.get('ArticleTitle', 'No title available.')
         print(index, title)
 
-### The following two functions are not necessary (the agents can figure out by itself how to combine the functions), but it will help save some tokens.
+
+### The following two functions are not necessary (the agents can figure out by itself how to combine the functions),
+### but it will help save some tokens.
 def get_title_abstract_from_doi(doi:str)->str:
     pmid = get_pmid_from_doi(doi)
     return get_title_abstract(pmid)

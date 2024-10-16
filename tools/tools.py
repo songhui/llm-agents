@@ -5,6 +5,7 @@ def second_last_msg(sender: ConversableAgent, recipient: ConversableAgent, summa
     return sender.chat_messages[recipient][-2]["content"]
 
 def describe_country(country_name:str)->str:
+    #TODO: add description here too
     url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles="+country_name
     try:
         response = requests.get(url)
@@ -19,5 +20,9 @@ def describe_country(country_name:str)->str:
 
 
 def initialize(group_manager:ConversableAgent, first_agent:ConversableAgent, message:str, max_round:int=6):
-
+    """
+    Initialize the conversation between a group of agent.
+    A group manager and the first agent to talk are needed. 
+    A message must also be passed to provide the task or the question to answer.
+    """
     first_agent.initiate_chat(group_manager, max_round= max_round, message= message)

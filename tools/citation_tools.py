@@ -1,3 +1,4 @@
+from typing import List
 import requests
 from Bio import Entrez
 
@@ -138,6 +139,18 @@ def get_citations_pubmed(pmid:str)->str:
         title = article.get('ArticleTitle', 'No title available.')
         print(index, title)
 
+# Function to fetch references from CrossRef using DOI
+def get_references(doi) -> List[str]:
+    url = f"https://api.crossref.org/works/{doi}"
+    response = requests.get(url)
+    
+    if response.status_code == 200:
+        data = response.json()
+        references = data.get("message", {}).get("reference", [])
+        return [ref.get('DOI', 'Unknown DOI') for ref in references]
+    else:
+        print(f"Error: {response.status_code}")
+        return []
 
 ### The following two functions are not necessary (the agents can figure out by itself how to combine the functions),
 ### but it will help save some tokens.

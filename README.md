@@ -11,7 +11,7 @@ git clone https://github.com/songhui/llm-agents
 ```
 
 ## Run in docker
-WHile in the root directory launch:
+While in the root directory launch:
 ```bash 
 docker run -it --rm -v "${PWD}":/home/jovyan/work quay.io/jupyter/datascience-notebook:2024-05-27
 ```

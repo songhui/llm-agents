@@ -1,12 +1,8 @@
 services:
   devcontainer:
     image: quay.io/jupyter/datascience-notebook:2024-05-27
-    container_name: notebook
-    ports:
-      - 8888:8888
     volumes:
       - ../../:/workspace:cached
-      - ../:/home/jovyan/project
     tty: true
     stdin_open: true
 

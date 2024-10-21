@@ -1,9 +1,8 @@
 {   "dockerComposeFile": "docker-compose.yml" ,
     "service": "devcontainer",
-    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-    "forwardPorts": [8888],
+    "workspaceFolder": "/workspace/${localWorkspaceFolderBasename}",
     // Install needed packages, should be changed in future
-    "postCreateCommand": "bash -i -c 'pip install poetry && poetry install' ",
+    "postCreateCommand": "pip install poetry && poetry install",
     "customizations": 
     { 
         // To install extensions in vscode without doing it manually every time

@@ -164,3 +164,4 @@ cython_debug/
 
 docker/neo4j/
 CONFIG_LIST
+schema.json

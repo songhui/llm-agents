@@ -1,5 +1,9 @@
 import json
+import logging
+import importlib.resources as resrc
 from neo4j import GraphDatabase as gd
+from neo4j.exceptions import Neo4jError
+from IPython.core.magic import register_line_cell_magic
 
 def connect(URL:str="neo4j://neo4j", auth:tuple=("neo4j", "llm-agents")):
     """
@@ -7,10 +11,13 @@ def connect(URL:str="neo4j://neo4j", auth:tuple=("neo4j", "llm-agents")):
     Default parameters are used to connect to the docker container instance.
     """
     
-    gdb = gd.driver(URL, auth=auth)
-    gdb.verify_connectivity
-
-    return gdb
+    try:
+        driver = gd.driver(URL , auth=auth)
+    except ConnectionError:
+        raise ConnectionError("Something went wrong with the connection to the database!")
+    else:
+        driver.verify_connectivity()
+        return driver
 
 def query_neo4j(query:str, gdb=None)->str:
     """
@@ -25,17 +32,30 @@ def query_neo4j(query:str, gdb=None)->str:
     Returns:
         (str): Either the results of the query or an exception.
     """
-   
-    if gdb is None: 
-        gdb = connect()
+    if not gdb: gdb = connect()
 
-    try:
-        records, summary, keys = gdb.execute_query(query)
-        return repr(records)
-    except Exception as e:
-        return repr(e)
+    log   = logging.getLogger()
+    res   = gdb.session(database="neo4j").run(query)
+    data  = res.data() # Needed before we use consume
+    notif = res.consume().summary_notifications
 
-def save_schema(name:str= "schema.json", driver=None) -> None:
+    # Due to errors mixed with warnings this is not 
+    # a complete solution on how to handle them.
+    # For example if you search a relationship that doesn't
+    # exist the result of a match and an optional match will be the same!! 
+    for n in notif:
+        s = n.severity_level
+        if s == "WARNING":
+            raise Neo4jError(n)
+        elif s == "INFORMATION":
+            log.warning("%r", n)
+        else:
+            # severity == "UNKNOWN"
+            log.info("%r", n)
+
+    return data
+
+def save_schema(name:str="schema.json", driver=None) -> None:
     """
     Save the schema of the database as a json file.
     The schema can be used to know entities and properties of the database.
@@ -55,12 +75,11 @@ def save_schema(name:str= "schema.json", driver=None) -> None:
     if not driver: driver = connect()
 
     if "json" not in str(name): name = name + ".json"
+    name = str(resrc.files("llmagents") / name)
 
     res = driver.session(database="neo4j").run("""call db.schema.visualization()""").data()
     # If the list is empty or if there are no nodes, then there is nothing to dump
-    if not res or not res[0]["nodes"]: 
-        print("Nothing to dump, exiting the function call...")
-        return 
+    if not res or not res[0]["nodes"]: return
 
     n = driver.session(database="neo4j").run("""call db.schema.nodeTypeProperties""").data()
     if n: # If n is not empty then it will insert properties in the list to dump
@@ -89,3 +108,20 @@ def save_schema(name:str= "schema.json", driver=None) -> None:
 
     with open(name, "w") as outfile:
         json.dump(res, outfile, indent=4)
+
+@register_line_cell_magic
+def cypher(line, cell=None):
+    """
+    It registers the magic cypher to be used in the notebook
+    by the executor agent.
+
+    Args:
+        line (_type_): If only a line of code is given (%cypher <line>).
+        cell (_type_, optional): If a multi-line code is given (%%cypher <newline> <cell>).
+
+    Returns:
+        _type_: The result of the query, if it wasn't successful will be an empty list.
+    """
+    if not cell: res = query_neo4j(line)
+    else:  res = query_neo4j(cell)
+    return res 

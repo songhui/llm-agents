@@ -1,5 +1,8 @@
+from typing import Annotated
 from autogen import ConversableAgent
-import requests
+from autogen.agentchat.contrib.retrieve_user_proxy_agent import RetrieveUserProxyAgent
+import importlib.resources as resrc
+from tools.neo4j import save_schema
 
 def second_last_msg(sender: ConversableAgent, recipient: ConversableAgent, summary_args: dict):
     return sender.chat_messages[recipient][-2]["content"]
@@ -26,3 +29,29 @@ def initialize(group_manager:ConversableAgent, first_agent:ConversableAgent, mes
     A message must also be passed to provide the task or the question to answer.
     """
     first_agent.initiate_chat(group_manager, max_round= max_round, message= message)
+
+
+#TODO: should be changed the way to rely on resrc lib
+def retrieve_content(message:Annotated[str, "Refined message which keeps the original meaning "], 
+                     n_results:int=3, file=resrc.files("llmagents") / "schema.json")->str:
+    """
+    """
+
+    save_schema()
+    if not file.is_file(): return message + "\nThe database is empty, therefore there are no constraints on the schema to choose." 
+
+    # Creates the new agent only if there is a schema
+    retriever = RetrieveUserProxyAgent(
+        name="retriever",
+        max_consecutive_auto_reply=3,
+        human_input_mode="NEVER",
+        retrieve_config={
+            "docs_path": str(file), # A list of urls, dirs or files can be passed
+            "extra-docs": True,
+            "get_or_create": True,
+        },
+        code_execution_config=False,
+        description="Assistant who has extra content retrieval power.")
+    
+    _ctx = {"problem": message, "n_results":n_results}
+    return retriever.message_generator(retriever, None, _ctx) or message    

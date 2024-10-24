@@ -18,6 +18,7 @@ pandas = "^2.2.3"
 chromadb = "^0.5.15"
 markdownify = "^0.13.1"
 pypdf = "^5.0.1"
+sentence-transformers = "^3.2.1"
 
 
 [tool.poetry.group.dev.dependencies]

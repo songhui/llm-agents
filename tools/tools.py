@@ -1,7 +1,9 @@
-from typing import Annotated
 from autogen import ConversableAgent
 from autogen.agentchat.contrib.retrieve_user_proxy_agent import RetrieveUserProxyAgent
 import importlib.resources as resrc
+
+import chromadb
+import requests
 from tools.neo4j import save_schema
 
 def second_last_msg(sender: ConversableAgent, recipient: ConversableAgent, summary_args: dict):
@@ -32,26 +34,24 @@ def initialize(group_manager:ConversableAgent, first_agent:ConversableAgent, mes
 
 
 #TODO: should be changed the way to rely on resrc lib
-def retrieve_content(message:Annotated[str, "Refined message which keeps the original meaning "], 
-                     n_results:int=3, file=resrc.files("llmagents") / "schema.json")->str:
+def retrieve_content(config:dict, file=resrc.files("llmagents") / "schema.json"):
     """
     """
 
     save_schema()
-    if not file.is_file(): return message + "\nThe database is empty, therefore there are no constraints on the schema to choose." 
+    if not file.is_file(): return None
+    
+    client = chromadb.PersistentClient(path=str(resrc.files("llmagents") / "tmp"))
 
     # Creates the new agent only if there is a schema
-    retriever = RetrieveUserProxyAgent(
+    return RetrieveUserProxyAgent(
         name="retriever",
-        max_consecutive_auto_reply=3,
         human_input_mode="NEVER",
         retrieve_config={
             "docs_path": str(file), # A list of urls, dirs or files can be passed
-            "extra-docs": True,
             "get_or_create": True,
+            "extra_docs": True,
+            "vector_db": client,
+            "customized_prompt": "DATABASE SCHEMA\n{input_context}\n\nTASK\n{input_question}",
         },
-        code_execution_config=False,
         description="Assistant who has extra content retrieval power.")
-    
-    _ctx = {"problem": message, "n_results":n_results}
-    return retriever.message_generator(retriever, None, _ctx) or message    

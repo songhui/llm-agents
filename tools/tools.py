@@ -1,4 +1,4 @@
-from autogen import ConversableAgent
+from autogen import ConversableAgent, GroupChat
 from autogen.agentchat.contrib.retrieve_user_proxy_agent import RetrieveUserProxyAgent
 import importlib.resources as resrc
 
@@ -55,3 +55,7 @@ def retrieve_content(config:dict, file=resrc.files("llmagents") / "schema.json")
             "customized_prompt": "DATABASE SCHEMA\n{input_context}\n\nTASK\n{input_question}",
         },
         description="Assistant who has extra content retrieval power.")
+
+def _reset_agents(group:GroupChat=None):
+    if group:
+        for a in group.agents: a.reset()

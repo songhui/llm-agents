@@ -10,7 +10,16 @@ def second_last_msg(sender: ConversableAgent, recipient: ConversableAgent, summa
     return sender.chat_messages[recipient][-2]["content"]
 
 def describe_country(country_name:str)->str:
-    #TODO: add description here too
+    """
+    Search a name of a country with an HTTP request.
+    
+    Arguments:
+        country_name (str): The string representing the name of the country to search
+
+    Return:
+        (str): A small description of the searched country.
+    """
+    
     url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles="+country_name
     try:
         response = requests.get(url)
@@ -34,13 +43,24 @@ def initialize(group_manager:ConversableAgent, first_agent:ConversableAgent, mes
 
 
 #TODO: should be changed the way to rely on resrc lib
-def retrieve_content(config:dict, file=resrc.files("llmagents") / "schema.json"):
+def retrieve_content(file=resrc.files("llmagents") / "schema.json"):
     """
+    Given the path to the schema file of the database, a retriever will be created.
+    A local vector database is defined to be sure the collection is really created.
     """
 
+    prompt = "DATABASE SCHEMA\n{input_context}\n\nTASK\n{input_question}"
+
     save_schema()
-    if not file.is_file(): return None
+
+    dir(file)
     
+
+    # This condition will no more be triggered 
+    if not file.is_file(): 
+        prompt = "TASK\n{input_question}"
+
+    # Creation of the vector database
     client = chromadb.PersistentClient(path=str(resrc.files("llmagents") / "tmp"))
 
     # Creates the new agent only if there is a schema
@@ -52,10 +72,16 @@ def retrieve_content(config:dict, file=resrc.files("llmagents") / "schema.json")
             "get_or_create": True,
             "extra_docs": True,
             "vector_db": client,
-            "customized_prompt": "DATABASE SCHEMA\n{input_context}\n\nTASK\n{input_question}",
+            "customized_prompt": prompt,
         },
         description="Assistant who has extra content retrieval power.")
 
 def _reset_agents(group:GroupChat=None):
+    """
+    Reset every agent in the groupchat
+    """
     if group:
         for a in group.agents: a.reset()
+
+def termination(msg:str):
+    return (msg["content"]) and ("terminate" in msg["content"].lower())

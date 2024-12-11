@@ -70,7 +70,7 @@ def retrieve_content(file=resrc.files("llmagents") / "schema.json"):
         retrieve_config={
             "docs_path": str(file), # A list of urls, dirs or files can be passed
             "get_or_create": True,
-            "extra_docs": True,
+            "new_docs": False,
             "vector_db": client,
             "customized_prompt": prompt,
         },

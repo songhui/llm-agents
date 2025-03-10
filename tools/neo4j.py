@@ -77,7 +77,6 @@ def save_schema(name:str="schema.json", driver=None) -> None:
     name = str(resrc.files("llmagents") / name)
 
     res = driver.session(database="neo4j").run("""call db.schema.visualization()""").data()
-    # If the list is empty or if there are no nodes, then there is nothing to dump
 
     n = driver.session(database="neo4j").run("""call db.schema.nodeTypeProperties""").data()
     if n: # If n is not empty then it will insert properties in the list to dump
@@ -104,8 +103,10 @@ def save_schema(name:str="schema.json", driver=None) -> None:
                     tmp["properties"].append(rr["propertyName"])
             res[0]["relationships"].append(tmp)
 
-    with open(name, "w") as outfile:
-        json.dump(res, outfile, indent=4)
+    # If the retrieved schema is empty it will not be dumped
+    if res[0]["relationships"]!=[] and res[0]["nodes"]!=[]:
+        with open(name, "w") as outfile:
+            json.dump(res, outfile, indent=4)
 
 @register_line_cell_magic
 def cypher(line, cell=None):

@@ -1,0 +1,44 @@
+[
+    {
+        "nodes": [
+            {
+                "name": "Paper",
+                "indexes": [],
+                "constraints": [],
+                "properties": [
+                    "title",
+                    "abstract",
+                    "doi"
+                ]
+            },
+            {
+                "name": "Review",
+                "indexes": [],
+                "constraints": [],
+                "properties": [
+                    "author",
+                    "comment",
+                    "isAboutPSC"
+                ]
+            }
+        ],
+        "relationships": [
+            {
+                "name": "REVIEWED",
+                "node1": "Review",
+                "node2": "Paper",
+                "properties": [
+                    null
+                ]
+            },
+            {
+                "name": "CITE",
+                "node1": "Paper",
+                "node2": "Paper",
+                "properties": [
+                    null
+                ]
+            }
+        ]
+    }
+]

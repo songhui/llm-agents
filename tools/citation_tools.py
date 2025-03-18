@@ -2,6 +2,8 @@ from typing import List
 import requests
 from Bio import Entrez
 
+#TODO: add doc-strings
+
 def get_citations(doi:str) -> str:
     url = f"https://api.crossref.org/works/{doi}"
     response = requests.get(url)
@@ -11,14 +13,13 @@ def get_citations(doi:str) -> str:
         references = data.get("message", {}).get("reference", [])
         return ", ".join([ref.get('DOI', 'Unknown DOI') for ref in references])
     else:
-        print(f"Error: {response.status_code}")
-        return ""
-    
+        raise Exception(f"Error: {response.status_code}")
+      
 #TODO: the mail should be a venv variable
 def get_title_abstract(pmid: str) -> str:
 
     Entrez.email = 'hui.song@sintef.no' 
-    handle = Entrez.efetch(db='pubmed', id=pmid, retmode='xml')
+    handle  = Entrez.efetch(db='pubmed', id=pmid, retmode='xml')
     records = Entrez.read(handle)
     handle.close()
     
@@ -26,7 +27,7 @@ def get_title_abstract(pmid: str) -> str:
     article = records['PubmedArticle'][0]['MedlineCitation']['Article']
     
     # Extract the title
-    title = article.get('ArticleTitle', 'No title available.')
+    title   = article.get('ArticleTitle', 'No title available.')
     
     # Extract the abstract
     abstract_paragraphs = article.get('Abstract', {}).get('AbstractText', [])
@@ -59,16 +60,16 @@ def get_pmid_from_title(title:str)->str:
     Searches PubMed for a paper by title and returns the PMID.
 
     Parameters:
-    title (str): The title of the paper.
+        title (str): The title of the paper.
 
     Returns:
-    str: The PMID of the paper if found.
+        str: The PMID of the paper if found.
     """
     # Set your email (required by NCBI)
     Entrez.email = "hui.song@sintef.no"  # Replace with your email address
 
     # Search for the paper using its title
-    search_handle = Entrez.esearch(db="pubmed", term=title, retmode="xml")
+    search_handle  = Entrez.esearch(db="pubmed", term=title, retmode="xml")
     search_results = Entrez.read(search_handle)
     search_handle.close()
 
@@ -87,22 +88,22 @@ def get_doi_from_pmid(pmid:str)->str:
     Fetches the DOI of a paper given its PMID.
 
     Parameters:
-    pmid (str): The PubMed ID of the paper.
+        pmid (str): The PubMed ID of the paper.
 
     Returns:
-    str or None: The DOI of the paper if found, else None.
+        str or None: The DOI of the paper if found, else None.
     """
     # Set your email (required by NCBI)
     Entrez.email = "hui.song@sintef.no"  # Replace with your email address
 
     # Fetch the article details
-    fetch_handle = Entrez.efetch(db="pubmed", id=pmid, retmode="xml")
+    fetch_handle  = Entrez.efetch(db="pubmed", id=pmid, retmode="xml")
     fetch_results = Entrez.read(fetch_handle)
     fetch_handle.close()
 
     # Extract the DOI from the article data
     try:
-        article = fetch_results['PubmedArticle'][0]
+        article     = fetch_results['PubmedArticle'][0]
         article_ids = article['PubmedData']['ArticleIdList']
 
         for id_element in article_ids:
@@ -111,16 +112,15 @@ def get_doi_from_pmid(pmid:str)->str:
         print("DOI not found in the article data.")
         return ""
     except (IndexError, KeyError) as e:
-        print(f"Error retrieving DOI: {e}")
-        return ""
+        raise Exception(f"Error retrieving DOI: {e}")
     
 ### This function has some problem and are currently not used ###
 def get_citations_pubmed(pmid:str)->str:
     Entrez.email = "hui.song@sintef.no"
-    links = Entrez.elink(dbfrom="pubmed", id=pmid, linkname="pubmed_pubmed_refs")
+    links  = Entrez.elink(dbfrom="pubmed", id=pmid, linkname="pubmed_pubmed_refs")
     record = Entrez.read(links)
 	
-    records = record[0][u'LinkSetDb'][0][u'Link']
+    records   = record[0][u'LinkSetDb'][0][u'Link']
     link_list = []
     for link in records:
         link_list.append(link[u'Id'])
@@ -128,7 +128,7 @@ def get_citations_pubmed(pmid:str)->str:
     print(link_list)
     for index, id in enumerate(link_list):
         print(id)
-        handle = Entrez.efetch(db='pubmed', id=id, retmode='xml')
+        handle  = Entrez.efetch(db='pubmed', id=id, retmode='xml')
         records = Entrez.read(handle)
         handle.close()
     
@@ -136,7 +136,7 @@ def get_citations_pubmed(pmid:str)->str:
         article = records['PubmedArticle'][0]['MedlineCitation']['Article']
     
     # Extract the title
-        title = article.get('ArticleTitle', 'No title available.')
+        title   = article.get('ArticleTitle', 'No title available.')
         print(index, title)
 
 # Function to fetch references from CrossRef using DOI
@@ -149,8 +149,15 @@ def get_references(doi) -> List[str]:
         references = data.get("message", {}).get("reference", [])
         return [ref.get('DOI', 'Unknown DOI') for ref in references]
     else:
-        print(f"Error: {response.status_code}")
-        return []
+        raise Exception(f"Error: {response.status_code}")
+
+def check_topic(pmid:str)->bool:
+    """
+    """
+    ab = get_title_abstract(pmid)
+    #TODO: are this the right words? for the first snowball they are all in the abstract
+    if ["PSC", "patient", "bile"] in ab: return True
+    else: return False
 
 ### The following two functions are not necessary (the agents can figure out by itself how to combine the functions),
 ### but it will help save some tokens.

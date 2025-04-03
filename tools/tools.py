@@ -74,7 +74,7 @@ def retrieve_content(file=resrc.files("llmagents") / "schema.json"):
             "vector_db": client,
             "customized_prompt": prompt,
         },
-        description="Assistant who has extra content retrieval power.")
+        description="Can't interact.")
 
 def _reset_agents(group:GroupChat=None):
     """
